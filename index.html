@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodePrep AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235;
+    --border: rgba(99,179,237,0.15); --border2: rgba(99,179,237,0.3);
+    --accent: #63b3ed; --accent2: #4fd1c5; --accent3: #f6ad55;
+    --text: #e2e8f0; --muted: #718096; --green: #68d391; --red: #fc8181;
+    --mono: 'Space Mono', monospace; --sans: 'Sora', sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+  .header { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: var(--mono); font-size: 18px; color: var(--accent); }
+  .logo span { color: var(--accent2); }
+  .logo small { font-size: 11px; color: var(--muted); margin-left: 8px; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-family: var(--mono); color: var(--muted); }
+  .chip .n { font-weight: 700; color: var(--accent2); }
+  .chip .ns { font-weight: 700; color: var(--accent3); }
+  .main { max-width: 780px; margin: 0 auto; padding: 32px 24px; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-n { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--accent); }
+  .stat-n.green { color: var(--green); } .stat-n.amber { color: var(--accent3); }
+  .stat-l { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .field-label { font-family: var(--mono); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; display: block; }
+  select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 10px 36px 10px 14px; font-family: var(--sans); font-size: 14px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2363b3ed' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; transition: border-color 0.2s; }
+  select:hover, select:focus { border-color: var(--border2); outline: none; }
+  select option { background: #1a2235; }
+  .btn-gen { grid-column: 1/-1; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 10px; color: #0a0e1a; font-family: var(--mono); font-size: 14px; font-weight: 700; padding: 14px; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+  .btn-gen:hover { opacity: 0.88; } .btn-gen:active { transform: scale(0.99); } .btn-gen:disabled { opacity: 0.45; cursor: not-allowed; }
+  .error-bar { background: rgba(252,129,129,0.08); border: 1px solid rgba(252,129,129,0.25); border-radius: 8px; padding: 10px 16px; color: var(--red); font-size: 13px; font-family: var(--mono); margin-bottom: 16px; display: none; }
+  .error-bar.show { display: block; }
+  .q-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 26px; display: none; animation: fadeUp 0.3s ease; }
+  .q-card.show { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .q-meta { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .badge { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+  .badge-topic { background: rgba(99,179,237,0.12); color: var(--accent); border: 1px solid rgba(99,179,237,0.22); }
+  .badge-beginner { background: rgba(104,211,145,0.12); color: var(--green); border: 1px solid rgba(104,211,145,0.22); }
+  .badge-intermediate { background: rgba(246,173,85,0.12); color: var(--accent3); border: 1px solid rgba(246,173,85,0.22); }
+  .badge-advanced { background: rgba(252,129,129,0.12); color: var(--red); border: 1px solid rgba(252,129,129,0.22); }
+  .q-text { font-size: 15px; line-height: 1.85; color: var(--text); margin-bottom: 20px; white-space: pre-wrap; }
+  .hint-btn { background: none; border: 1px solid var(--border); border-radius: 7px; color: var(--muted); font-family: var(--mono); font-size: 12px; padding: 5px 12px; cursor: pointer; margin-bottom: 14px; transition: all 0.2s; }
+  .hint-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+  .hint-box { background: rgba(246,173,85,0.07); border: 1px solid rgba(246,173,85,0.2); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--accent3); margin-bottom: 16px; line-height: 1.65; display: none; }
+  .hint-box.show { display: block; }
+  .ans-label { font-family: var(--mono); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+  textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--mono); font-size: 13px; line-height: 1.7; padding: 14px 16px; resize: vertical; min-height: 160px; transition: border-color 0.2s; }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  .btn-row { display: flex; gap: 12px; margin-top: 14px; }
+  .btn-submit { background: var(--surface2); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font-family: var(--mono); font-size: 13px; padding: 10px 22px; cursor: pointer; transition: background 0.2s; }
+  .btn-submit:hover { background: rgba(99,179,237,0.1); } .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-skip { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: var(--mono); font-size: 13px; padding: 10px 22px; cursor: pointer; transition: all 0.2s; }
+  .btn-skip:hover { border-color: var(--border2); color: var(--text); }
+  .fb-card { border-radius: 10px; padding: 18px 22px; margin-top: 16px; font-size: 14px; line-height: 1.75; display: none; animation: fadeUp 0.25s ease; }
+  .fb-card.show { display: block; }
+  .fb-card.pass { background: rgba(104,211,145,0.07); border: 1px solid rgba(104,211,145,0.25); }
+  .fb-card.fail { background: rgba(252,129,129,0.07); border: 1px solid rgba(252,129,129,0.25); }
+  .fb-card.partial { background: rgba(99,179,237,0.07); border: 1px solid rgba(99,179,237,0.2); }
+  .fb-head { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .pass .fb-head { color: var(--green); } .fail .fb-head { color: var(--red); } .partial .fb-head { color: var(--accent); }
+  .fb-body { color: var(--text); white-space: pre-wrap; }
+  .dots { display: inline-flex; gap: 5px; align-items: center; vertical-align: middle; }
+  .dots span { width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: blink 1.2s ease-in-out infinite; }
+  .dots span:nth-child(2) { animation-delay: 0.2s; } .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2;transform:scale(0.7)} 40%{opacity:1;transform:scale(1)} }
+  .empty { text-align: center; padding: 52px 24px; color: var(--muted); }
+  .empty-icon { font-size: 44px; margin-bottom: 14px; }
+  .empty p { font-size: 14px; line-height: 1.7; }
+  .history-title { font-family: var(--mono); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin: 32px 0 12px; display: flex; align-items: center; gap: 8px; }
+  .history-title span { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .hi-icon { font-size: 15px; flex-shrink: 0; font-family: var(--mono); }
+  .hi-q { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hi-score { font-family: var(--mono); font-size: 12px; color: var(--muted); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">code<span>Prep</span>.ai <small>via Groq</small></div>
+  <div class="header-right">
+    <div class="chip">streak <span class="ns" id="c-streak">0</span></div>
+    <div class="chip">score <span class="n" id="c-score">0/0</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-n green" id="s-correct">0</div><div class="stat-l">correct</div></div>
+    <div class="stat-card"><div class="stat-n amber" id="s-streak">0</div><div class="stat-l">streak 🔥</div></div>
+    <div class="stat-card"><div class="stat-n" id="s-total">0</div><div class="stat-l">attempted</div></div>
+  </div>
+
+  <div class="controls">
+    <div>
+      <label class="field-label">Topic</label>
+      <select id="sel-topic">
+        <optgroup label="── Web Dev ──">
+          <option value="HTML and CSS">HTML & CSS</option>
+          <option value="JavaScript fundamentals">JavaScript Fundamentals</option>
+          <option value="JavaScript DOM manipulation">DOM Manipulation</option>
+          <option value="Async JavaScript, promises, fetch, async/await">Async JS / Fetch</option>
+          <option value="CSS Flexbox and Grid layout">Flexbox & Grid</option>
+          <option value="Web accessibility (a11y)">Accessibility (a11y)</option>
+          <option value="REST APIs and HTTP">REST APIs & HTTP</option>
+        </optgroup>
+        <optgroup label="── Computer Science ──">
+          <option value="Python fundamentals">Python Fundamentals</option>
+          <option value="Arrays and strings algorithm problems">Arrays & Strings</option>
+          <option value="Object-oriented programming concepts">OOP Concepts</option>
+          <option value="Data structures: stacks, queues, linked lists, trees">Data Structures</option>
+          <option value="Algorithms and Big O notation">Algorithms & Big O</option>
+          <option value="Recursion">Recursion</option>
+          <option value="SQL and database basics">SQL & Databases</option>
+          <option value="Git and version control">Git & Version Control</option>
+        </optgroup>
+      </select>
+    </div>
+    <div>
+      <label class="field-label">Difficulty</label>
+      <select id="sel-diff">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate" selected>Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <button class="btn-gen" id="gen-btn" onclick="generateQuestion()">▶ Generate Question</button>
+  </div>
+
+  <div class="error-bar" id="error-bar"></div>
+
+  <div class="q-card" id="q-card">
+    <div class="q-meta">
+      <span class="badge badge-topic" id="b-topic">—</span>
+      <span class="badge" id="b-diff">—</span>
+    </div>
+    <div class="q-text" id="q-text">—</div>
+    <button class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 Show hint</button>
+    <div class="hint-box" id="hint-box"></div>
+    <label class="ans-label">Your Answer</label>
+    <textarea id="ans-input" placeholder="Write your answer — explain concepts, write code, or describe your approach."></textarea>
+    <div class="btn-row">
+      <button class="btn-submit" id="sub-btn" onclick="submitAnswer()">Submit Answer</button>
+      <button class="btn-skip" onclick="generateQuestion()">Skip →</button>
+    </div>
+    <div class="fb-card" id="fb-card">
+      <div class="fb-head" id="fb-head"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+  </div>
+
+  <div class="empty" id="empty-state">
+    <div class="empty-icon">⌨️</div>
+    <p>Pick a topic and difficulty,<br>then hit <strong>Generate Question</strong> to begin.</p>
+  </div>
+
+  <div id="history-section" style="display:none;">
+    <div class="history-title">Recent questions <span id="history-count">0</span></div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+</div>
+
+<script>
+var stats = {correct:0,total:0,streak:0};
+var curQ='', curHint='', curTopic='', curDiff='', hintOn=false, log=[];
+
+// Load saved stats
+(function(){
+  var s=localStorage.getItem('cp_stats'); if(s){try{stats=JSON.parse(s);}catch(e){}}
+  var h=localStorage.getItem('cp_log'); if(h){try{log=JSON.parse(h);}catch(e){}}
+  updateStats(); renderHistory();
+})();
+
+function updateStats(){
+  document.getElementById('s-correct').textContent=stats.correct;
+  document.getElementById('s-streak').textContent=stats.streak;
+  document.getElementById('s-total').textContent=stats.total;
+  document.getElementById('c-score').textContent=stats.correct+'/'+stats.total;
+  document.getElementById('c-streak').textContent=stats.streak;
+}
+
+function saveAll(){
+  localStorage.setItem('cp_stats',JSON.stringify(stats));
+  localStorage.setItem('cp_log',JSON.stringify(log.slice(0,20)));
+}
+
+async function callGroq(sys, usr){
+  // Always use the Vercel proxy — key is stored securely as an environment variable
+  var r = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system: sys, messages: [{ role: 'user', content: usr }] })
+  });
+
+  if(!r.ok){
+    var t=await r.text(); var e; try{e=JSON.parse(t);}catch(x){}
+    throw new Error(e&&e.error?e.error.message:'Error '+r.status);
+  }
+  var d=await r.json();
+  var txt=d.choices[0].message.content.trim().replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+  return JSON.parse(txt);
+}
+
+function showError(m){var e=document.getElementById('error-bar');e.textContent='⚠ '+m;e.classList.add('show');}
+function hideError(){document.getElementById('error-bar').classList.remove('show');}
+
+function setGenBtn(loading){
+  var b=document.getElementById('gen-btn');
+  if(loading){b.disabled=true;b.innerHTML='Generating <span class="dots"><span></span><span></span><span></span></span>';}
+  else{b.disabled=false;b.textContent='↻ New Question';}
+}
+
+async function generateQuestion(){
+  curTopic=document.getElementById('sel-topic').value;
+  curDiff=document.getElementById('sel-diff').value;
+  hideError(); setGenBtn(true);
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('q-card').classList.remove('show');
+  document.getElementById('fb-card').classList.remove('show');
+  document.getElementById('ans-input').value='';
+  document.getElementById('hint-box').classList.remove('show');
+  document.getElementById('hint-btn').textContent='💡 Show hint';
+  hintOn=false;
+
+  try{
+    var p=await callGroq(
+      'You are a coding interview coach. Always respond with raw valid JSON only — no markdown, no backticks, no explanation.',
+      'Generate ONE '+curDiff+' level interview question about: '+curTopic+'.\n'+
+      'Return exactly: {"question":"full question text, use \\n for line breaks, include a code snippet if relevant","hint":"1-2 sentence nudge without giving the answer"}\n'+
+      'Beginner=conceptual/syntax. Intermediate=practical/explain-output. Advanced=edge cases/design. Be specific.'
+    );
+    curQ=p.question; curHint=p.hint||'Think about the core concept being tested.';
+    document.getElementById('b-topic').textContent=curTopic.split(',')[0].slice(0,28);
+    var bd=document.getElementById('b-diff'); bd.className='badge badge-'+curDiff; bd.textContent=curDiff;
+    document.getElementById('q-text').textContent=curQ;
+    document.getElementById('hint-box').textContent=curHint;
+    document.getElementById('q-card').classList.add('show');
+    document.getElementById('sub-btn').disabled=false;
+    document.getElementById('sub-btn').textContent='Submit Answer';
+    setGenBtn(false);
+  }catch(e){
+    console.error(e); showError(e.message||'Failed to generate. Check your internet connection.');
+    setGenBtn(false); document.getElementById('gen-btn').textContent='▶ Generate Question';
+  }
+}
+
+function toggleHint(){
+  hintOn=!hintOn;
+  document.getElementById('hint-box').classList.toggle('show',hintOn);
+  document.getElementById('hint-btn').textContent=hintOn?'🙈 Hide hint':'💡 Show hint';
+}
+
+async function submitAnswer(){
+  var ans=document.getElementById('ans-input').value.trim(); if(!ans)return;
+  var btn=document.getElementById('sub-btn');
+  btn.disabled=true; btn.innerHTML='Grading <span class="dots"><span></span><span></span><span></span></span>';
+  hideError();
+  try{
+    var p=await callGroq(
+      'You are a coding interview coach. Always respond with raw valid JSON only — no markdown, no backticks.',
+      'Grade this answer.\nQuestion: "'+curQ+'"\nTopic: '+curTopic+' | Difficulty: '+curDiff+'\nAnswer: "'+ans+'"\n'+
+      'Return exactly: {"result":"pass","score":85,"summary":"one sentence verdict","feedback":"2-3 sentences: what was right, what was missing, one tip"}\n'+
+      'result must be "pass", "fail", or "partial". score 0-100.'
+    );
+    stats.total++;
+    if(p.result==='pass'){stats.correct++;stats.streak++;}else{stats.streak=0;}
+    log.unshift({topic:curTopic.split(',')[0].slice(0,30),diff:curDiff,result:p.result,score:p.score,q:curQ.slice(0,80)});
+    updateStats(); saveAll(); renderHistory();
+    var fb=document.getElementById('fb-card');
+    fb.className='fb-card show '+(p.result==='pass'?'pass':p.result==='partial'?'partial':'fail');
+    var labels={pass:'✓ Correct',fail:'✗ Needs work',partial:'◎ Partial'};
+    document.getElementById('fb-head').textContent=labels[p.result]+' — '+p.score+'/100';
+    document.getElementById('fb-body').textContent=p.summary+'\n\n'+p.feedback;
+    btn.textContent='✓ Submitted';
+  }catch(e){
+    console.error(e); showError(e.message||'Failed to grade. Try again.');
+    btn.disabled=false; btn.textContent='Submit Answer';
+  }
+}
+
+function renderHistory(){
+  if(!log.length){document.getElementById('history-section').style.display='none';return;}
+  document.getElementById('history-section').style.display='block';
+  document.getElementById('history-count').textContent=log.length;
+  var c={pass:'#68d391',fail:'#fc8181',partial:'#63b3ed'};
+  var ic={pass:'✓',fail:'✗',partial:'◎'};
+  document.getElementById('history-list').innerHTML=log.slice(0,8).map(function(h){
+    return '<div class="history-item"><span class="hi-icon" style="color:'+c[h.result]+'">'+ic[h.result]+'</span><span class="hi-q">'+h.q+(h.q.length>=80?'…':'')+'</span><span class="hi-score">'+h.topic+' · '+h.score+'/100</span></div>';
+  }).join('');
+}
+</script>
+</body>
+</html>
