@@ -1,6 +1,6 @@
 # CodePrep AI 🧠
 
-An AI-powered coding interview practice tool built with vanilla HTML/CSS/JS, powered by Groq (free AI API) and deployed on Vercel.
+An AI-powered coding interview practice tool built with vanilla HTML/CSS/JS, powered by Groq (free AI API) and deployed on Vercel. Live Link: https://codeprep-a35baojuq-devcam-projects.vercel.app 
 
 ## Features
 - Generate coding interview questions by topic and difficulty
