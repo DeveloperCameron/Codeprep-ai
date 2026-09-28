@@ -295,9 +295,16 @@ function renderHistory(){
   document.getElementById('history-count').textContent=log.length;
   var c={pass:'#68d391',fail:'#fc8181',partial:'#63b3ed'};
   var ic={pass:'✓',fail:'✗',partial:'◎'};
-  document.getElementById('history-list').innerHTML=log.slice(0,8).map(function(h){
-    return '<div class="history-item"><span class="hi-icon" style="color:'+c[h.result]+'">'+ic[h.result]+'</span><span class="hi-q">'+h.q+(h.q.length>=80?'…':'')+'</span><span class="hi-score">'+h.topic+' · '+h.score+'/100</span></div>';
-  }).join('');
+  var container=document.getElementById('history-list');
+  container.innerHTML='';
+  log.slice(0,8).forEach(function(h){
+    var item=document.createElement('div'); item.className='history-item';
+    var icon=document.createElement('span'); icon.className='hi-icon'; icon.style.color=c[h.result]; icon.textContent=ic[h.result];
+    var q=document.createElement('span'); q.className='hi-q'; q.textContent=h.q+(h.q.length>=80?'…':'');
+    var score=document.createElement('span'); score.className='hi-score'; score.textContent=h.topic+' · '+h.score+'/100';
+    item.appendChild(icon); item.appendChild(q); item.appendChild(score);
+    container.appendChild(item);
+  });
 }
 </script>
 </body>
