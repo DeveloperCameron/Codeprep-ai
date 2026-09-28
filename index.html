@@ -205,7 +205,7 @@ async function callGroq(sys, usr){
 
   if(!r.ok){
     var t=await r.text(); var e; try{e=JSON.parse(t);}catch(x){}
-    throw new Error(e&&e.error?e.error.message:'Error '+r.status);
+    throw new Error(e&&e.error?e.error:'Error '+r.status);
   }
   var d=await r.json();
   var txt=d.choices[0].message.content.trim().replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
