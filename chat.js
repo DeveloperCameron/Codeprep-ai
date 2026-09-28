@@ -9,7 +9,13 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { messages, system } = req.body;
+    const { messages, system } = req.body ?? {};
+
+    const valid =
+      typeof system === 'string' && system.length <= 1000 &&
+      Array.isArray(messages) && messages.length <= 2 &&
+      messages.every(m => typeof m.content === 'string' && m.content.length <= 4000);
+    if (!valid) return res.status(400).json({ error: 'Invalid request' });
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
