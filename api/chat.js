@@ -19,7 +19,6 @@ export default async function handler(req, res) {
         model: 'openai/gpt-oss-20b',
         temperature: 0.7,
         max_tokens: 1024,
-        response_format: { type: "json_object" },
         messages: [
           { role: 'system', content: system },
           ...messages
@@ -35,6 +34,10 @@ export default async function handler(req, res) {
     const data = await response.json();
     return res.status(200).json(data);
 
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+}
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
