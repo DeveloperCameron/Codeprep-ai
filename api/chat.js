@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.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}`
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
         model: 'openai/gpt-oss-20b',
@@ -27,18 +27,6 @@ export default async function handler(req, res) {
       })
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      return res.status(response.status).json({ error: err.error?.message || 'Groq error' });
-    }
-
-    const data = await response.json();
-    return res.status(200).json(data);
-
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
-  }
-}
     if (!response.ok) {
       const err = await response.json();
       return res.status(response.status).json({ error: err.error?.message || 'Groq error' });
